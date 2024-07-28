@@ -1,3 +1,4 @@
+import * as vscode from "vscode";
 import { Socket } from "net";
 import {
   integer,
@@ -12,7 +13,7 @@ import {
   SlitherDetectorType,
   VersionData,
 } from "./types/languageServerTypes";
-import { AnalysisRequestParams } from "./types/analysisTypes";
+import { AnalysisRequestParams, SliceParams } from "./types/analysisTypes";
 
 // The name of the language server executable
 const lsp_executable_name = "slither-lsp";
@@ -127,4 +128,13 @@ export class SlitherLanguageClient {
   public analyze(params: AnalysisRequestParams): Promise<void> {
     return this.languageClient.sendRequest("$/slither/analyze", params);
   }
+
+  public async forward_slice(params: SliceParams): Promise<vscode.Location[]> {
+    return this.languageClient.sendRequest("$/slither/forwardSlice", params);
+  }
+
+  public async backward_slice(params: SliceParams): Promise<vscode.Location[]> {
+    return this.languageClient.sendRequest("$/slither/backwardSlice", params);
+  }
+
 }

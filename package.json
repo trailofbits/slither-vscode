@@ -91,6 +91,18 @@
       {
         "command": "slither.analyze_all",
         "title": "Slither: Analyze all workspace folders"
+      },
+      {
+        "command": "slither.forward_slice",
+        "title": "Slither: Forward slice"
+      },
+      {
+        "command": "slither.backward_slice",
+        "title": "Slither: Backward slice"
+      },
+      {
+        "command": "slither.clean_slice_decorations",
+        "title": "Slither: Clean slice decorations"
       }
     ],
     "viewsContainers": {
@@ -113,7 +125,19 @@
       ]
     },
     "menus": {
-      "explorer/context": [
+      "editor/context": [
+        {
+          "command": "slither.forward_slice",
+          "group": "navigation"
+        },
+        {
+          "command": "slither.backward_slice",
+          "group": "navigation"
+        },
+        {
+          "command": "slither.clean_slice_decorations",
+          "group": "navigation"
+        }
       ]
     },
     "languages": [

@@ -14,6 +14,12 @@ export let finishedActivation: boolean = false;
 
 let slitherSettingsProvider: SettingsViewProvider;
 
+// Slice decorations parameters
+const style_forward_slice = { backgroundColor: "green", }
+const style_backward_slice = { backgroundColor: "blue", }
+let forward_slice_deco = vscode.window.createTextEditorDecorationType(style_forward_slice)
+let backward_slice_deco = vscode.window.createTextEditorDecorationType(style_backward_slice)
+
 // Functions
 export async function activate(context: vscode.ExtensionContext) {
   // Set our slither panel to visible
@@ -110,6 +116,47 @@ export async function activate(context: vscode.ExtensionContext) {
     }
     await slitherLanguageClient.analyze({ uris: [qp.uri.toString()] });
   }));
+
+  context.subscriptions.push(vscode.commands.registerCommand("slither.forward_slice", async () => {
+    let activeTextEditor = vscode.window.activeTextEditor;
+    if (activeTextEditor === undefined) {
+      return;
+    }
+    backward_slice_deco.dispose();
+    backward_slice_deco = vscode.window.createTextEditorDecorationType(style_backward_slice);
+    let activeSelection = activeTextEditor.selection.active;
+    let uri = activeTextEditor.document.uri;
+    let slice = await slitherLanguageClient.forward_slice({ uri: uri.toString(), position: activeSelection, forward: true});
+    let ranges: vscode.Range[] = [];
+    for (const location of slice) {
+      ranges.push(location.range);
+    }
+    activeTextEditor.setDecorations(forward_slice_deco, ranges);
+  }));
+
+  context.subscriptions.push(vscode.commands.registerCommand("slither.backward_slice", async () => {
+    let activeTextEditor = vscode.window.activeTextEditor;
+    if (activeTextEditor === undefined) {
+      return;
+    }
+    forward_slice_deco.dispose();
+    forward_slice_deco = vscode.window.createTextEditorDecorationType(style_forward_slice);
+    let activeSelection = activeTextEditor.selection.active;
+    let uri = activeTextEditor.document.uri;
+    let slice = await slitherLanguageClient.backward_slice({ uri: uri.toString(), position: activeSelection, forward: false });
+    let ranges: vscode.Range[] = [];
+    for (const location of slice) {
+      ranges.push(location.range);
+    }
+    activeTextEditor.setDecorations(backward_slice_deco, ranges);
+}));
+
+context.subscriptions.push(vscode.commands.registerCommand("slither.clean_slice_decorations", async () => {
+  forward_slice_deco.dispose();
+  forward_slice_deco = vscode.window.createTextEditorDecorationType(style_forward_slice);
+  backward_slice_deco.dispose();
+  backward_slice_deco = vscode.window.createTextEditorDecorationType(style_backward_slice);
+}));
 
   const slithirProvider = new (class implements vscode.TextDocumentContentProvider {
     provideTextDocumentContent(uri: vscode.Uri): string {
